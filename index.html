@@ -222,6 +222,11 @@
                                     target="_blank">Terms and Conditions</a></label>
                         </div>
 
+                        <div class="form-group">
+                            <label for="signedName">Type your full name to sign:</label>
+                            <input type="text" id="signedName" name="signedName" placeholder="John Doe" required>
+                        </div>
+
                         <button type="submit" id="submitBtn" disabled>Place Authorization Hold</button>
                 </div>
             </form>
@@ -242,6 +247,7 @@
         const lastNameInput = document.getElementById('lastName');
         const emailInput = document.getElementById('email');
         const termsCheckbox = document.getElementById('terms');
+        const signedNameInput = document.getElementById('signedName');
         const submitBtn = document.getElementById('submitBtn');
 
         // 2. Stripe Initialization
@@ -259,9 +265,10 @@
             const isLastNameValid = lastNameInput.value.trim() !== "";
             const isEmailValid = emailInput.checkValidity() && emailInput.value !== "";
             const isTermsChecked = termsCheckbox.checked;
+            const isSignedNameValid = signedNameInput.value.trim() !== "";
 
             // Disable button if email/terms are missing OR if we are still fetching the PIN
-            if (isEmailValid && isTermsChecked && isFirstNameValid && isLastNameValid) {
+            if (isEmailValid && isTermsChecked && isFirstNameValid && isLastNameValid && isSignedNameValid) {
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = "1";
                 submitBtn.style.cursor = "pointer";
@@ -277,6 +284,7 @@
         lastNameInput.addEventListener('input', validateForm);
         emailInput.addEventListener('input', validateForm);
         termsCheckbox.addEventListener('change', validateForm);
+        signedNameInput.addEventListener('input', validateForm);
         card.on('change', function (event) {
             const displayError = document.getElementById('card-errors');
             displayError.textContent = event.error ? event.error.message : '';
@@ -337,7 +345,8 @@
                     ipAddress: userIP,
                     timestamp: clickTimestamp,
                     termsAccepted: termsCheckbox.checked,
-                    termsVersion: "Tesla_Charger_User_Agreement_Updated.docx"
+                    termsVersion: "Tesla_Charger_User_Agreement_Updated.docx",
+                    signedName: signedNameInput.value
                 })
             })
                 .then(res => {
