@@ -225,7 +225,9 @@
                         <div class="form-group">
                             <label for="signedName">Type your full name to sign:</label>
                             <input type="text" id="signedName" name="signedName" placeholder="John Doe" required>
-                             <div style="font-size: 0.8rem; color: #6b7c93; margin-top: 5px;">By typing your name, you acknowledge that this constitutes a binding electronic signature with the same legal validity and enforceability as a handwritten signature.</div>
+                            <div style="font-size: 0.8rem; color: #6b7c93; margin-top: 5px;">
+                                By typing your name, you acknowledge that this constitutes a binding electronic signature with the same legal validity and enforceability as a handwritten signature.
+                            </div>
                         </div>
 
                         <button type="submit" id="submitBtn" disabled>Place Authorization Hold</button>
@@ -237,6 +239,7 @@
             <p>Thank you for using our charger!</p>
             <p>Please use the PIN below to unlock the charger lockbox.</p>
             <div class="pin-display" id="chargerPin">----</div>
+            <p>Please stop using the charger when your vehicle is fully charged so other customers can use it.</p>
             <p>Need help using the charger? Please watch this video:</p>
             <a href="https://www.youtube.com/watch?v=YOUR_YOUTUBE_VIDEO_ID" target="_blank" class="video-link">How to
                 Use Our Tesla Charger</a>
@@ -330,7 +333,7 @@
         });
 
         function processAuthorization(paymentMethodId, clickTimestamp) {
-            const webAppUrl = "https://script.google.com/macros/s/AKfycbyIh2R07hSMfM3Lj5_dOx3Jslq8nVAGdtD2QkRsxIEYcuy220WeA4gtg4KuSmCY5SmQ/exec";
+            const webAppUrl = "https://script.google.com/macros/s/AKfycbxkBM3Yjffb1LN0i5BL_ATVmYVcD4GWfX4IxV8SHUjFcXETynVlMuVCU5RpwZfewQk8/exec";
 
             fetch(webAppUrl, {
                 method: 'POST',
