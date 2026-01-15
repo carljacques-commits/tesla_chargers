@@ -147,13 +147,13 @@
 
         .pin-display {
             background-color: #f4f4f4;
-            border: 2px solid #00563B;
+            border: 2px solid #cc0000;
             /* Tesla Red */
             border-radius: 8px;
             padding: 20px;
             font-size: 2rem;
             font-weight: bold;
-            color: #00563B;
+            color: #cc0000;
             text-align: center;
             margin: 20px 0;
             letter-spacing: 2px;
@@ -170,6 +170,18 @@
 
         .video-link:hover {
             text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                margin: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -218,8 +230,8 @@
 
                         <div class="terms-checkbox">
                             <input type="checkbox" id="terms" name="terms" required>
-                            <label for="terms">I agree to the <a href="https://docs.google.com/document/d/1e-1aDwu-lrpz69wqoGvhe7U-s14GCdDh7kFfnroPF5k/preview"
-                                    target="_blank">Terms and Conditions</a></label>
+                            <label for="terms">I agree to the <a href="https://docs.google.com/document/d/1e-1aDwu-lrpz69wqoGvhe7U-s14GCdDh7kFfnroPF5k/edit?usp=sharing"
+                                    target="_blank" rel="noopener noreferrer">Terms and Conditions</a></label>
                         </div>
 
                         <div class="form-group">
@@ -236,7 +248,7 @@
         </div>
         <div id="postPayment" class="post-payment-details">
             <h2>Authorization Hold Placed</h2>
-            <p>Thank you for using our charger! A confirmation email has been sent to the email account you provided.</p>
+            <p>Thank you for using our charger!</p>
             <p>Please use the PIN below to unlock the charger lockbox.</p>
             <div class="pin-display" id="chargerPin">----</div>
             <p>Please stop using the charger when your vehicle is fully charged so other customers can use it.</p>
@@ -255,7 +267,7 @@
         const submitBtn = document.getElementById('submitBtn');
 
         // 2. Stripe Initialization
-        const stripe = Stripe('pk_test_51SpC5Q2QQ5ZJK1IgFgmUPPoWudklKAEIv6ii6Bm8Imlr5CTm1gegnhbDtX2UbB4LGPUKpf1lqckOEXG7T2n7cauR00L1tUiEjX'); // stripe publishable key
+        const stripe = Stripe('pk_test_51SkT9dJOKbHz97JAF2zvcGQ1RLE7BzuYkZumhNqJaFBPiKVnos5MNkzdrg9PNUseqKX0hhjc9XmU4J41Jd7IkCpK00oELLCGcj'); // stripe publishable key
         const elements = stripe.elements();
         const style = {
             base: { fontSize: '16px', color: '#32325d' },
@@ -333,7 +345,7 @@
         });
 
         function processAuthorization(paymentMethodId, clickTimestamp) {
-            const webAppUrl = "https://script.google.com/macros/s/AKfycbw4b1jb9dOb7eTMqU9em_Vs1Nl_npdniMXZ_SeUHLZKawViPD2iHqwGMkELjSI2DeHi/exec";
+            const webAppUrl = "https://script.google.com/macros/s/AKfycbxkBM3Yjffb1LN0i5BL_ATVmYVcD4GWfX4IxV8SHUjFcXETynVlMuVCU5RpwZfewQk8/exec";
 
             fetch(webAppUrl, {
                 method: 'POST',
