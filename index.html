@@ -345,7 +345,7 @@
         });
 
         function processAuthorization(paymentMethodId, clickTimestamp) {
-            const webAppUrl = "https://script.google.com/macros/s/AKfycbxFSHbXb1MFEZaWYTr87Ik69g-AdJnj8KJSLi7lMW2DfF_VuyOV_i_ptfJppaHmjERC/exec";
+            const webAppUrl = "https://script.google.com/macros/s/AKfycbzSq_rSN3gStcO7cQ7Bt7fJspBfxveMH3OzA3xA2R8tDtLInow7hSv_hANpHEtASpif/exec";
 
             fetch(webAppUrl, {
                 method: 'POST',
@@ -361,7 +361,6 @@
                     ipAddress: userIP,
                     timestamp: clickTimestamp,
                     termsAccepted: termsCheckbox.checked,
-                    termsVersion: "Tesla_Charger_User_Agreement_Updated.docx",
                     signedName: signedNameInput.value
                 })
             })
