@@ -136,6 +136,16 @@
             border: 1px solid #999999 !important;
         }
 
+        .returning-user-box {
+            display: none;
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
         .post-payment-details {
             display: none;
             /* Hidden by default, shown after payment */
@@ -193,6 +203,12 @@
             <h1>Tesla Charger Authorization Hold</h1>
 
             <p>Please enter your details to use our charger.</p>
+            
+            <div id="returningUserMsg" class="returning-user-box">
+                <strong>Welcome back, <span id="returningUserName">User</span>!</strong><br>
+                <div id="activeHoldMsg" style="display:none; margin-top:5px;">You have an active authorization hold. No new charge is required.</div>
+            </div>
+
             <form id="paymentForm">
                 <div class="form-group">
                     <label for="firstName">First Name:</label>
@@ -208,10 +224,18 @@
                     <div style="font-size: 0.8rem; color: #6b7c93; margin-top: 5px;">Your email address will only be used for communication in case of damage to the charger.</div>
                 </div>
                 <div class="info-box-yellow">
-                    <p>A $250 authorization hold will be placed on your credit card. This hold will expire after 5-7
+                    <p id="holdInfoText">A $250 authorization hold will be placed on your credit card. This hold will expire after 5-7
                         business days if no damage is done to the charger.</p>
                 </div>
-                <div class="form-group">
+                
+                <div class="form-group" id="savedCardGroup" style="display:none;">
+                    <div class="terms-checkbox">
+                        <input type="checkbox" id="useSavedCard" name="useSavedCard" checked>
+                        <label for="useSavedCard">Use saved card ending in <span id="savedCardLast4">****</span></label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="newCardGroup">
                     <!-- Stripe Elements will inject the card input field here -->
                         <label for="card-element">Credit Card Information:</label>
                         <div id="card-element">
@@ -265,6 +289,7 @@
         const termsCheckbox = document.getElementById('terms');
         const signedNameInput = document.getElementById('signedName');
         const submitBtn = document.getElementById('submitBtn');
+        const useSavedCardCheckbox = document.getElementById('useSavedCard');
 
         // 2. Stripe Initialization
         const stripe = Stripe('pk_test_51SpC5cClEeAyBy4s5rVvZRYVfSPB3zpvTlH1WFVwVuwFbHQkvXDK6L8hYRFBLz4ZvdjnjnIzngWYnEI2XhNTU1bU00mRs9XDnW'); // stripe publishable key
@@ -274,6 +299,8 @@
         };
         const card = elements.create('card', { style: style });
         card.mount('#card-element');
+
+        let isUsingSavedCard = false;
 
         // 3. Form Validation (Combined Version)
         function validateForm() {
@@ -295,10 +322,62 @@
             }
         }
 
+        // Check User Status on Email Blur
+        async function checkUserStatus() {
+            const email = emailInput.value;
+            if (!email || !email.includes('@')) return;
+
+            const webAppUrl = "https://script.google.com/macros/s/AKfycbz_YUtuNl7XUNkFFY7zgEB3KAlZGtTCo53Bwgw0jN1I0NfFIe5kOYKjvrusUCxCFDa3/exec";
+            
+            try {
+                const response = await fetch(webAppUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'check_user', email: email })
+                });
+                const data = await response.json();
+
+                if (data.found) {
+                    document.getElementById('returningUserMsg').style.display = 'block';
+                    document.getElementById('returningUserName').innerText = data.firstName || 'User';
+
+                    if (data.hasActiveHold) {
+                        // Active Hold Logic
+                        document.getElementById('activeHoldMsg').style.display = 'block';
+                        document.getElementById('holdInfoText').innerText = "Active authorization hold found. You will not be charged again for this session.";
+                        document.getElementById('newCardGroup').style.display = 'none';
+                        document.getElementById('savedCardGroup').style.display = 'none';
+                        isUsingSavedCard = true; // Technically bypassing card entirely
+                        submitBtn.innerText = "Unlock Charger (No Charge)";
+                    } else if (data.last4) {
+                        // Saved Card Logic
+                        document.getElementById('savedCardGroup').style.display = 'block';
+                        document.getElementById('savedCardLast4').innerText = data.last4;
+                        document.getElementById('newCardGroup').style.display = 'none';
+                        isUsingSavedCard = true;
+                    }
+                }
+            } catch (e) {
+                console.log("User check failed", e);
+            }
+            validateForm();
+        }
+
+        // Toggle between saved card and new card
+        useSavedCardCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('newCardGroup').style.display = 'none';
+                isUsingSavedCard = true;
+            } else {
+                document.getElementById('newCardGroup').style.display = 'block';
+                isUsingSavedCard = false;
+            }
+        });
+
         // Event Listeners for UI
         firstNameInput.addEventListener('input', validateForm);
         lastNameInput.addEventListener('input', validateForm);
         emailInput.addEventListener('input', validateForm);
+        emailInput.addEventListener('blur', checkUserStatus); // Trigger lookup
         termsCheckbox.addEventListener('change', validateForm);
         signedNameInput.addEventListener('input', validateForm);
         card.on('change', function (event) {
@@ -338,19 +417,35 @@
             submitBtn.disabled = true;
             submitBtn.innerText = "Processing...";
 
-            const { paymentMethod, error } = await stripe.createPaymentMethod({
-                type: 'card',
-                card: card,
-                billing_details: { email: emailInput.value },
-            });
+            // Save to localStorage for next time
+            localStorage.setItem('tesla_user_firstName', firstNameInput.value);
+            localStorage.setItem('tesla_user_lastName', lastNameInput.value);
+            localStorage.setItem('tesla_user_email', emailInput.value);
 
-            if (error) {
-                document.getElementById('card-errors').textContent = error.message;
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Place Authorization Hold";
+            let paymentMethodId = null;
+
+            // Only create payment method if we are NOT using a saved card/active hold
+            // Note: If active hold exists, isUsingSavedCard is true (logic above), but we won't send a PM ID.
+            if (!isUsingSavedCard) {
+                const { paymentMethod, error } = await stripe.createPaymentMethod({
+                    type: 'card',
+                    card: card,
+                    billing_details: { email: emailInput.value },
+                });
+
+                if (error) {
+                    document.getElementById('card-errors').textContent = error.message;
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Place Authorization Hold";
+                    return;
+                }
+                paymentMethodId = paymentMethod.id;
             } else {
-                processAuthorization(paymentMethod.id, clickTimestamp);
+                // We are using saved card or active hold bypass
+                paymentMethodId = null; 
             }
+
+            processAuthorization(paymentMethodId, clickTimestamp);
         });
 
         function processAuthorization(paymentMethodId, clickTimestamp) {
@@ -362,7 +457,9 @@
                     'Content-Type': 'text/plain;charset=utf-8',
                 },
                 body: JSON.stringify({
+                    action: 'authorize',
                     paymentMethodId: paymentMethodId,
+                    useSavedCard: isUsingSavedCard, // Flag to tell backend to use customer ID
                     email: emailInput.value,
                     firstName: firstNameInput.value,
                     lastName: lastNameInput.value,
@@ -400,6 +497,16 @@
                     submitBtn.innerText = "Place Authorization Hold";
                 });
         }
+
+        // Load from localStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            if(localStorage.getItem('tesla_user_email')) {
+                firstNameInput.value = localStorage.getItem('tesla_user_firstName') || '';
+                lastNameInput.value = localStorage.getItem('tesla_user_lastName') || '';
+                emailInput.value = localStorage.getItem('tesla_user_email') || '';
+                checkUserStatus(); // Auto-check if we have email
+            }
+        });
 
         // INITIALIZE PAGE STATE
         validateForm();
