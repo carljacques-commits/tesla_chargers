@@ -322,12 +322,27 @@
             }
         }
 
+        function resetUserState() {
+            document.getElementById('returningUserMsg').style.display = 'none';
+            document.getElementById('activeHoldMsg').style.display = 'none';
+            document.getElementById('holdInfoText').innerText = "A $250 authorization hold will be placed on your credit card. This hold will expire after 5-7 business days if no damage is done to the charger.";
+            document.getElementById('newCardGroup').style.display = 'block';
+            document.getElementById('savedCardGroup').style.display = 'none';
+            isUsingSavedCard = false;
+            submitBtn.innerText = "Place Authorization Hold";
+            useSavedCardCheckbox.checked = true;
+        }
+
         // Check User Status on Email Blur
         async function checkUserStatus() {
             const email = emailInput.value;
-            if (!email || !email.includes('@')) return;
+            if (!email || !email.includes('@')) {
+                resetUserState();
+                validateForm();
+                return;
+            }
 
-            const webAppUrl = "https://script.google.com/macros/s/AKfycbywk5onnJ7UHBs1j-Iof_mm1zpYWalxBQYByPdTxmHYTA1A7BQZ4YTDDxIOlTIeFtI9/exec";
+            const webAppUrl = "https://script.google.com/macros/s/AKfycbz_YUtuNl7XUNkFFY7zgEB3KAlZGtTCo53Bwgw0jN1I0NfFIe5kOYKjvrusUCxCFDa3/exec";
             
             try {
                 const response = await fetch(webAppUrl, {
@@ -355,9 +370,12 @@
                         document.getElementById('newCardGroup').style.display = 'none';
                         isUsingSavedCard = true;
                     }
+                } else {
+                    resetUserState();
                 }
             } catch (e) {
                 console.log("User check failed", e);
+                resetUserState();
             }
             validateForm();
         }
@@ -449,7 +467,7 @@
         });
 
         function processAuthorization(paymentMethodId, clickTimestamp) {
-            const webAppUrl = "https://script.google.com/macros/s/AKfycbw6-0otk1jlFtX-xVdCR3ei8K6RMxzFyfUXI4BNhT5WJMxVSudWHsf9t1_GcYmak0v6/exec";
+            const webAppUrl = "https://script.google.com/macros/s/AKfycbywk5onnJ7UHBs1j-Iof_mm1zpYWalxBQYByPdTxmHYTA1A7BQZ4YTDDxIOlTIeFtI9/exec";
 
             fetch(webAppUrl, {
                 method: 'POST',
