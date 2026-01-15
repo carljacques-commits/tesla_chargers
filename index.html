@@ -335,7 +335,7 @@
 
         // Check User Status on Email Blur
         async function checkUserStatus() {
-            const email = emailInput.value;
+            const email = emailInput.value.trim();
             if (!email || !email.includes('@')) {
                 resetUserState();
                 validateForm();
@@ -347,6 +347,9 @@
             try {
                 const response = await fetch(webAppUrl, {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8',
+                    },
                     body: JSON.stringify({ action: 'check_user', email: email })
                 });
                 const data = await response.json();
@@ -438,7 +441,7 @@
             // Save to localStorage for next time
             localStorage.setItem('tesla_user_firstName', firstNameInput.value);
             localStorage.setItem('tesla_user_lastName', lastNameInput.value);
-            localStorage.setItem('tesla_user_email', emailInput.value);
+            localStorage.setItem('tesla_user_email', emailInput.value.trim());
 
             let paymentMethodId = null;
 
@@ -448,7 +451,7 @@
                 const { paymentMethod, error } = await stripe.createPaymentMethod({
                     type: 'card',
                     card: card,
-                    billing_details: { email: emailInput.value },
+                    billing_details: { email: emailInput.value.trim() },
                 });
 
                 if (error) {
@@ -467,7 +470,7 @@
         });
 
         function processAuthorization(paymentMethodId, clickTimestamp) {
-            const webAppUrl = "https://script.google.com/macros/s/AKfycbywk5onnJ7UHBs1j-Iof_mm1zpYWalxBQYByPdTxmHYTA1A7BQZ4YTDDxIOlTIeFtI9/exec";
+            const webAppUrl = "https://script.google.com/macros/s/AKfycbxw_v3-65XoEZoaTjQhMsveRF32ATm5glrQrI39f65C6G3vCmIpQfullXBDm6-KGCIq/exec";
 
             fetch(webAppUrl, {
                 method: 'POST',
@@ -478,7 +481,7 @@
                     action: 'authorize',
                     paymentMethodId: paymentMethodId,
                     useSavedCard: isUsingSavedCard, // Flag to tell backend to use customer ID
-                    email: emailInput.value,
+                    email: emailInput.value.trim(),
                     firstName: firstNameInput.value,
                     lastName: lastNameInput.value,
                     chargerID: chargerID,
