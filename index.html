@@ -310,7 +310,16 @@
         // 4. Charger ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         let chargerID = urlParams.get('chargerID') || urlParams.get('chargerid') || urlParams.get('ChargerID');
-        if (!chargerID) { chargerID = "1"; } // Local testing override
+
+        if (!chargerID) {
+            document.querySelector('.container').innerHTML = `
+                <div style="text-align: center; padding: 40px 20px;">
+                    <h2 style="color: #d32f2f;">Error: Missing Charger ID</h2>
+                    <p>Please scan the QR code on the charger and fill out the authorization form to charge your vehicle.</p>
+                </div>
+            `;
+            throw new Error("Charger ID not found in URL");
+        }
 
         // 4b. Fetch User IP
         let userIP = "Unknown";
