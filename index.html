@@ -272,7 +272,7 @@
         </div>
         <div id="postPayment" class="post-payment-details">
             <h2>Authorization Hold Placed</h2>
-            <p>Thank you for using our charger! A copy of the signed Terms and Conditions has been sent to the email address you provided.</p>
+            <p id="emailConfirmationMsg">Thank you for using our charger! A copy of the signed Terms and Conditions has been sent to the email address you provided.</p>
             <p>Please use the PIN below to unlock the charger lockbox.</p>
             <div class="pin-display" id="chargerPin">----</div>
             <p>Please stop using the charger when your vehicle is fully charged so other customers can use it.</p>
@@ -472,7 +472,7 @@
         });
 
         function processAuthorization(paymentMethodId, clickTimestamp) {
-            const webAppUrl = "https://script.google.com/macros/s/AKfycbxw_v3-65XoEZoaTjQhMsveRF32ATm5glrQrI39f65C6G3vCmIpQfullXBDm6-KGCIq/exec";
+            const webAppUrl = "https://script.google.com/macros/s/AKfycbxqhndngWNknHLEa0iQKW4k_voECDyvgkveIaXu3UhbOnR-3dK3Ent7OSuNr0VQJk2W/exec";
 
             fetch(webAppUrl, {
                 method: 'POST',
@@ -506,6 +506,14 @@
                         // SECURITY FIX: PIN is now received from server after successful payment
                         document.getElementById('prePayment').style.display = 'none';
                         document.getElementById('chargerPin').innerText = `Charger #${chargerID} PIN: ${data.pin}`;
+                        
+                        // Toggle email confirmation message based on whether PDF was actually sent
+                        if (data.pdfSent) {
+                            document.getElementById('emailConfirmationMsg').style.display = 'block';
+                        } else {
+                            document.getElementById('emailConfirmationMsg').style.display = 'none';
+                        }
+                        
                         document.getElementById('postPayment').style.display = 'block';
                     } else {
                         alert("Authorization failed: " + (data.error || "Unknown error"));
