@@ -271,7 +271,7 @@
             </form>
         </div>
         <div id="postPayment" class="post-payment-details">
-            <h2>Authorization Hold Placed</h2>
+            <h2 id="authHoldTitle">Authorization Hold Placed</h2>
             <p id="emailConfirmationMsg">Thank you for using our charger! A copy of the signed Terms and Conditions has been sent to the email address you provided.</p>
             <p>Please use the PIN below to unlock the charger lockbox.</p>
             <div class="pin-display" id="chargerPin">----</div>
@@ -524,6 +524,13 @@
                             document.getElementById('emailConfirmationMsg').style.display = 'none';
                         }
                         
+                        // Toggle title based on active hold status
+                        if (data.hasActiveHold) {
+                            document.getElementById('authHoldTitle').style.display = 'none';
+                        } else {
+                            document.getElementById('authHoldTitle').style.display = 'block';
+                        }
+
                         document.getElementById('postPayment').style.display = 'block';
                     } else {
                         alert("Authorization failed: " + (data.error || "Unknown error"));
