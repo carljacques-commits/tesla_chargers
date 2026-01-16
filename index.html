@@ -206,7 +206,7 @@
             
             <div id="returningUserMsg" class="returning-user-box">
                 <strong>Welcome back, <span id="returningUserName">User</span>!</strong><br>
-                <div id="activeHoldMsg" style="display:none; margin-top:5px;">You have an active authorization hold. No new charge is required.</div>
+                <div id="activeHoldMsg" style="display:none; margin-top:5px;">You have an active authorization hold. No credit card information is required.</div>
             </div>
 
             <form id="paymentForm">
@@ -360,12 +360,10 @@
 
                     if (data.hasActiveHold) {
                         // Active Hold Logic
-                        document.getElementById('activeHoldMsg').style.display = 'block';
-                        document.getElementById('holdInfoText').innerText = "Active authorization hold found. You will not be charged again for this session.";
                         document.getElementById('newCardGroup').style.display = 'none';
                         document.getElementById('savedCardGroup').style.display = 'none';
                         isUsingSavedCard = true; // Technically bypassing card entirely
-                        submitBtn.innerText = "Unlock Charger (No Charge)";
+                        submitBtn.innerText = "View charger PIN";
                     } else if (data.last4) {
                         // Saved Card Logic
                         document.getElementById('savedCardGroup').style.display = 'block';
