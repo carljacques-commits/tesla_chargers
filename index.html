@@ -223,7 +223,7 @@
                     <input type="email" id="email" name="email" required>
                     <div style="font-size: 0.8rem; color: #6b7c93; margin-top: 5px;">Your email address will only be used for communication in case of damage to the charger.</div>
                 </div>
-                <div class="info-box-yellow">
+                <div class="info-box-yellow" id="holdInfoBox">
                     <p id="holdInfoText">A $250 authorization hold will be placed on your credit card. This hold will expire after 5-7
                         business days if no damage is done to the charger.</p>
                 </div>
@@ -325,6 +325,8 @@
         function resetUserState() {
             document.getElementById('returningUserMsg').style.display = 'none';
             document.getElementById('activeHoldMsg').style.display = 'none';
+            if (document.getElementById('holdInfoBox')) document.getElementById('holdInfoBox').style.display = 'block';
+
             document.getElementById('holdInfoText').innerText = "A $250 authorization hold will be placed on your credit card. This hold will expire after 5-7 business days if no damage is done to the charger.";
             document.getElementById('newCardGroup').style.display = 'block';
             document.getElementById('savedCardGroup').style.display = 'none';
@@ -360,6 +362,8 @@
 
                     if (data.hasActiveHold) {
                         // Active Hold Logic
+                        document.getElementById('activeHoldMsg').style.display = 'block';
+                        if (document.getElementById('holdInfoBox')) document.getElementById('holdInfoBox').style.display = 'none';
                         document.getElementById('newCardGroup').style.display = 'none';
                         document.getElementById('savedCardGroup').style.display = 'none';
                         isUsingSavedCard = true; // Technically bypassing card entirely
