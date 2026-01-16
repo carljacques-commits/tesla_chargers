@@ -253,7 +253,7 @@
                         </div>
                 </div>
 
-                        <div class="terms-checkbox">
+                        <div class="terms-checkbox" id="termsCheckboxGroup">
                             <input type="checkbox" id="terms" name="terms" required>
                             <label for="terms">I agree to the <a href="https://docs.google.com/document/d/1e-1aDwu-lrpz69wqoGvhe7U-s14GCdDh7kFfnroPF5k/edit?usp=sharing"
                                     target="_blank" rel="noopener noreferrer">Terms and Conditions</a></label>
@@ -330,6 +330,9 @@
             document.getElementById('holdInfoText').innerText = "A $250 authorization hold will be placed on your credit card. This hold will expire after 5-7 business days if no damage is done to the charger.";
             document.getElementById('newCardGroup').style.display = 'block';
             document.getElementById('savedCardGroup').style.display = 'none';
+            document.getElementById('termsCheckboxGroup').style.display = 'flex';
+            termsCheckbox.checked = false;
+
             isUsingSavedCard = false;
             submitBtn.innerText = "Place Authorization Hold";
             useSavedCardCheckbox.checked = true;
@@ -359,6 +362,10 @@
                 if (data.found) {
                     document.getElementById('returningUserMsg').style.display = 'block';
                     document.getElementById('returningUserName').innerText = data.firstName || 'User';
+                    
+                    // Reset terms for returning users (default to visible/unchecked)
+                    document.getElementById('termsCheckboxGroup').style.display = 'flex';
+                    termsCheckbox.checked = false;
 
                     if (data.hasActiveHold) {
                         // Active Hold Logic
@@ -366,6 +373,9 @@
                         if (document.getElementById('holdInfoBox')) document.getElementById('holdInfoBox').style.display = 'none';
                         document.getElementById('newCardGroup').style.display = 'none';
                         document.getElementById('savedCardGroup').style.display = 'none';
+                        document.getElementById('termsCheckboxGroup').style.display = 'none';
+                        termsCheckbox.checked = true;
+
                         isUsingSavedCard = true; // Technically bypassing card entirely
                         submitBtn.innerText = "View charger PIN";
                     } else if (data.last4) {
