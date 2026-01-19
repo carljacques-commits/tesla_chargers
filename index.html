@@ -200,13 +200,13 @@
     <div class="container">
         <div id="prePayment">
             <h2>3131 Canal Properties, LLC</h2>
-            <h1>Tesla Charger Authorization Hold</h1>
+            <h1>Tesla Charger Security Verification</h1>
 
             <p>Please enter your details to use our charger.</p>
             
             <div id="returningUserMsg" class="returning-user-box">
                 <strong>Welcome back, <span id="returningUserName">User</span>!</strong><br>
-                <div id="activeHoldMsg" style="display:none; margin-top:5px;">You already have an active authorization hold. No credit card information is required.</div>
+                <div id="activeHoldMsg" style="display:none; margin-top:5px;">You have a recent active session. No new card verification is required.</div>
             </div>
 
             <form id="paymentForm">
@@ -224,8 +224,7 @@
                     <div style="font-size: 0.8rem; color: #6b7c93; margin-top: 5px;">Your email address will only be used for communication in case of damage to the charger.</div>
                 </div>
                 <div class="info-box-yellow" id="holdInfoBox">
-                    <p id="holdInfoText">A $250 authorization hold will be placed on your credit card. This hold will expire after 5-7
-                        business days if no damage is done to the charger.</p>
+                    <p id="holdInfoText">A temporary security hold of $250 will be placed on your card. This is not a charge and will be released if no damage occurs. Your card will be stored securely for potential damage charges as per the Terms and Conditions.</p>
                 </div>
                 
                 <div class="form-group" id="savedCardGroup" style="display:none;">
@@ -267,11 +266,11 @@
                             </div>
                         </div>
 
-                        <button type="submit" id="submitBtn" disabled>Place Authorization Hold</button>
+                        <button type="submit" id="submitBtn" disabled>Verify Card & Start Session</button>
             </form>
         </div>
         <div id="postPayment" class="post-payment-details">
-            <h2 id="authHoldTitle">Authorization Hold Placed</h2>
+            <h2 id="authHoldTitle">Session Started</h2>
             <p id="emailConfirmationMsg">Thank you for using our charger! A copy of the signed Terms and Conditions has been sent to the email address you provided.</p>
             <p>Please use the PIN below to unlock the charger lockbox.</p>
             <div class="pin-display" id="chargerPin">----</div>
@@ -283,7 +282,7 @@
     </div>
     <script>
         // 1. Element Selectors
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby50AHMLo5gMejIAv9SshtQpmn1iyB4_dxhJl3A5iCYHMCFgzas-cORKDZSkhOl3ZfD/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx5dymmWCpODwj7AZGdDIig1O1eeDwlHmH8PxClEfJjKeKZGOstZm5afQ0jMsysigOe/exec";
 
         const firstNameInput = document.getElementById('firstName');
         const lastNameInput = document.getElementById('lastName');
@@ -329,14 +328,14 @@
             document.getElementById('activeHoldMsg').style.display = 'none';
             if (document.getElementById('holdInfoBox')) document.getElementById('holdInfoBox').style.display = 'block';
 
-            document.getElementById('holdInfoText').innerText = "A $250 authorization hold will be placed on your credit card. This hold will expire after 5-7 business days if no damage is done to the charger.";
+            document.getElementById('holdInfoText').innerText = "A temporary security hold of $250 will be placed on your card. This is not a charge and will be released if no damage occurs. Your card will be stored securely for potential damage charges as per the Terms and Conditions.";
             document.getElementById('newCardGroup').style.display = 'block';
             document.getElementById('savedCardGroup').style.display = 'none';
             document.getElementById('termsCheckboxGroup').style.display = 'flex';
             termsCheckbox.checked = false;
 
             isUsingSavedCard = false;
-            submitBtn.innerText = "Place Authorization Hold";
+            submitBtn.innerText = "Verify Card & Start Session";
             useSavedCardCheckbox.checked = true;
         }
 
@@ -448,7 +447,7 @@
             const clickTimestamp = new Date().toISOString();
 
             submitBtn.disabled = true;
-            submitBtn.innerText = "Processing...";
+            submitBtn.innerText = "Verifying...";
 
             // Save to localStorage for next time
             localStorage.setItem('tesla_user_firstName', firstNameInput.value);
@@ -469,7 +468,7 @@
                 if (error) {
                     document.getElementById('card-errors').textContent = error.message;
                     submitBtn.disabled = false;
-                    submitBtn.innerText = "Place Authorization Hold";
+                    submitBtn.innerText = "Verify Card & Start Session";
                     return;
                 }
                 paymentMethodId = paymentMethod.id;
@@ -533,14 +532,14 @@
                     } else {
                         alert("Authorization failed: " + (data.error || "Unknown error"));
                         submitBtn.disabled = false;
-                        submitBtn.innerText = "Place Authorization Hold";
+                        submitBtn.innerText = "Verify Card & Start Session";
                     }
                 })
                 .catch(err => {
                     console.error("Detailed Fetch Error:", err);
                     alert("Payment was sent, but we couldn't read the response. Please check your email or refresh.");
                     submitBtn.disabled = false;
-                    submitBtn.innerText = "Place Authorization Hold";
+                    submitBtn.innerText = "Verify Card & Start Session";
                 });
         }
 
