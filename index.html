@@ -283,6 +283,8 @@
     </div>
     <script>
         // 1. Element Selectors
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyaujOCjOhtDE-sI6gNqZewqzP7YqX8D7I2PK-m0472vSZsfIoK8v6B4UMOM8sNz5bN/exec";
+
         const firstNameInput = document.getElementById('firstName');
         const lastNameInput = document.getElementById('lastName');
         const emailInput = document.getElementById('email');
@@ -347,10 +349,8 @@
                 return;
             }
 
-            const webAppUrl = "https://script.google.com/macros/s/AKfycbyaujOCjOhtDE-sI6gNqZewqzP7YqX8D7I2PK-m0472vSZsfIoK8v6B4UMOM8sNz5bN/exec";
-            
             try {
-                const response = await fetch(webAppUrl, {
+                const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/plain;charset=utf-8',
@@ -482,9 +482,7 @@
         });
 
         function processAuthorization(paymentMethodId, clickTimestamp) {
-            const webAppUrl = "https://script.google.com/macros/s/AKfycbxqhndngWNknHLEa0iQKW4k_voECDyvgkveIaXu3UhbOnR-3dK3Ent7OSuNr0VQJk2W/exec";
-
-            fetch(webAppUrl, {
+            fetch(WEB_APP_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'text/plain;charset=utf-8',
