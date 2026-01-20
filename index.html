@@ -282,7 +282,7 @@
     </div>
     <script>
         // 1. Element Selectors
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz4a189FIIJYPXifq8LqUlOPqaWuA1bHtgNBmA2tto_-48dn-aaq7eCf3PoBwzgugng/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwwTWwnf0YYLE4Li3FJoZL9bbjSd1xm2359t3TNbrURwdiyejoEwT3H9Z3JNPhOHz8/exec";
 
         const firstNameInput = document.getElementById('firstName');
         const lastNameInput = document.getElementById('lastName');
@@ -333,6 +333,11 @@
             document.getElementById('savedCardGroup').style.display = 'none';
             document.getElementById('termsCheckboxGroup').style.display = 'flex';
             termsCheckbox.checked = false;
+            
+            // Reset signature visibility
+            const signedNameGroup = signedNameInput.parentElement;
+            if (signedNameGroup) signedNameGroup.style.display = 'block';
+            signedNameInput.value = "";
 
             isUsingSavedCard = false;
             submitBtn.innerText = "Verify Card & Start Session";
@@ -372,11 +377,28 @@
                         if (document.getElementById('holdInfoBox')) document.getElementById('holdInfoBox').style.display = 'none';
                         document.getElementById('newCardGroup').style.display = 'none';
                         document.getElementById('savedCardGroup').style.display = 'none';
-                        document.getElementById('termsCheckboxGroup').style.display = 'none';
-                        termsCheckbox.checked = true;
+                        
+                        // Step C.1 vs C.2: Check T/C Status
+                        if (data.isTcCurrent) {
+                            // Step C.1: Active Hold + Current T/C -> Immediate Access
+                            document.getElementById('termsCheckboxGroup').style.display = 'none';
+                            termsCheckbox.checked = true;
+                            
+                            // Hide signature for one-click experience
+                            const signedNameGroup = signedNameInput.parentElement;
+                            if (signedNameGroup) signedNameGroup.style.display = 'none';
+                            signedNameInput.value = "Returning User"; // Auto-fill to pass validation
+
+                            submitBtn.innerText = "View charger PIN";
+                        } else {
+                            // Step C.2: Active Hold + Old T/C -> Prompt for Agreement
+                            document.getElementById('termsCheckboxGroup').style.display = 'flex';
+                            termsCheckbox.checked = false;
+                            document.getElementById('activeHoldMsg').innerText = "You have a recent active session, but our Terms have changed. Please review and accept the new Terms.";
+                            submitBtn.innerText = "Accept Terms & Start Session";
+                        }
 
                         isUsingSavedCard = true; // Technically bypassing card entirely
-                        submitBtn.innerText = "View charger PIN";
                     } else if (data.last4) {
                         // Saved Card Logic
                         document.getElementById('savedCardGroup').style.display = 'block';
