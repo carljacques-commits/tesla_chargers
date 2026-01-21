@@ -6,7 +6,7 @@
     <script src="https://js.stripe.com/v3/"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tesla Charger Payment v. 2.1</title>
+    <title>Tesla Charger Payment v. 2</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -252,6 +252,8 @@
                         </div>
                 </div>
 
+                        <div id="tcUpdateMsg" style="display:none;"></div>
+
                         <div class="terms-checkbox" id="termsCheckboxGroup">
                             <input type="checkbox" id="terms" name="terms" required>
                             <label for="terms">I agree to the <a href="https://docs.google.com/document/d/1e-1aDwu-lrpz69wqoGvhe7U-s14GCdDh7kFfnroPF5k/edit?usp=sharing"
@@ -326,6 +328,7 @@
         function resetUserState() {
             document.getElementById('returningUserMsg').style.display = 'none';
             document.getElementById('activeHoldMsg').style.display = 'none';
+            if (document.getElementById('tcUpdateMsg')) document.getElementById('tcUpdateMsg').style.display = 'none';
             if (document.getElementById('holdInfoBox')) document.getElementById('holdInfoBox').style.display = 'block';
 
             document.getElementById('holdInfoText').innerText = "A temporary authorization hold of $250 will be placed on your card. This is not a charge and will be released if no damage occurs. Your card will be stored securely for potential damage charges as per the Terms and Conditions.";
@@ -373,7 +376,6 @@
 
                     if (data.hasActiveHold) {
                         // Active Hold Logic
-                        document.getElementById('activeHoldMsg').style.display = 'block';
                         if (document.getElementById('holdInfoBox')) document.getElementById('holdInfoBox').style.display = 'none';
                         document.getElementById('newCardGroup').style.display = 'none';
                         document.getElementById('savedCardGroup').style.display = 'none';
@@ -381,6 +383,9 @@
                         // Step C.1 vs C.2: Check T/C Status
                         if (data.isTcCurrent) {
                             // Step C.1: Active Hold + Current T/C -> Immediate Access
+                            document.getElementById('activeHoldMsg').style.display = 'block';
+                            document.getElementById('activeHoldMsg').innerText = "You already have an active authorization hold. No credit card information is required.";
+                            if (document.getElementById('tcUpdateMsg')) document.getElementById('tcUpdateMsg').style.display = 'none';
                             document.getElementById('termsCheckboxGroup').style.display = 'none';
                             termsCheckbox.checked = true;
                             
@@ -392,9 +397,15 @@
                             submitBtn.innerText = "View charger PIN";
                         } else {
                             // Step C.2: Active Hold + Old T/C -> Prompt for Agreement
+                            document.getElementById('activeHoldMsg').style.display = 'none';
+                            const tcMsg = document.getElementById('tcUpdateMsg');
+                            if (tcMsg) {
+                                tcMsg.style.display = 'block';
+                                tcMsg.className = 'info-box-yellow';
+                                tcMsg.innerText = "Our Terms and Conditions have changed. Please review and accept the new Terms.";
+                            }
                             document.getElementById('termsCheckboxGroup').style.display = 'flex';
                             termsCheckbox.checked = false;
-                            document.getElementById('activeHoldMsg').innerText = "Our Terms and Conditions have changed. Please review and accept the new Terms.";
                             submitBtn.innerText = "Accept Terms & Start Session";
                         }
 
